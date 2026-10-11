@@ -1,4 +1,4 @@
-@extends('students.layout')
+@extends('layouts.app')
 
 @section('title', 'Edit student')
 

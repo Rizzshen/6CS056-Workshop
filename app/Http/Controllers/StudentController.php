@@ -26,6 +26,9 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:students,email'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:2000'],
+            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
         ]);
 
         Student::create($validated);
@@ -53,6 +56,9 @@ class StudentController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:students,email,'.$student->id],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:2000'],
+            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
         ]);
 
         $student->update($validated);
