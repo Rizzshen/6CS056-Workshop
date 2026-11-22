@@ -117,6 +117,26 @@ class StudentCrudTest extends TestCase
             ->assertSessionHasErrors('email');
     }
 
+    public function test_empty_student_form_is_validated_by_the_server(): void
+    {
+        $this->get(route('students.create'))
+            ->assertOk()
+            ->assertDontSee('required');
+
+        $this->from(route('students.create'))
+            ->post(route('students.store'), [
+                'name' => '',
+                'email' => '',
+                'phone' => '',
+                'address' => '',
+                'date_of_birth' => '',
+            ])
+            ->assertRedirect(route('students.create'))
+            ->assertSessionHasErrors(['name', 'email', 'phone']);
+
+        $this->assertDatabaseCount('students', 0);
+    }
+
     public function test_student_can_keep_the_same_email_when_updated(): void
     {
         $student = Student::create([

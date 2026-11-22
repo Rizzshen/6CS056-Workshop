@@ -46,6 +46,27 @@ class CourseCrudTest extends TestCase
             ->assertSee('No courses yet. Add one to get started.');
     }
 
+    public function test_empty_course_form_is_validated_by_the_server(): void
+    {
+        $this->get(route('courses.create'))
+            ->assertOk()
+            ->assertDontSee('required');
+
+        $this->from(route('courses.create'))
+            ->post(route('courses.store'), [
+                'name' => '',
+                'description' => '',
+                'duration_weeks' => '',
+                'fee' => '',
+                'difficulty' => '',
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('courses.create'))
+            ->assertSessionHasErrors(['name', 'duration_weeks', 'fee', 'difficulty']);
+
+        $this->assertDatabaseCount('courses', 0);
+    }
+
     public function test_courses_can_be_created_updated_and_deleted(): void
     {
         $this->get(route('courses.create'))
