@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CourseDifficulty;
 use App\Models\Course;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,19 +24,12 @@ class CourseController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:5000'],
-            'duration_weeks' => ['required', 'integer', 'min:1', 'max:65535'],
-            'fee' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
-            'difficulty' => ['required', Rule::enum(CourseDifficulty::class)],
-            'is_active' => ['required', 'boolean'],
-        ]);
+        $validated = $request->validate($this->rules());
 
         Course::create($validated);
 
         return redirect()->route('courses.index')
-            ->with('status', 'Course created successfully.');
+            ->with('success', 'Course created successfully.');
     }
 
     public function show(Course $course): View
@@ -56,19 +48,12 @@ class CourseController extends Controller
 
     public function update(Request $request, Course $course): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:5000'],
-            'duration_weeks' => ['required', 'integer', 'min:1', 'max:65535'],
-            'fee' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
-            'difficulty' => ['required', Rule::enum(CourseDifficulty::class)],
-            'is_active' => ['required', 'boolean'],
-        ]);
+        $validated = $request->validate($this->rules());
 
         $course->update($validated);
 
         return redirect()->route('courses.index')
-            ->with('status', 'Course updated successfully.');
+            ->with('success', 'Course updated successfully.');
     }
 
     public function destroy(Course $course): RedirectResponse
@@ -76,6 +61,18 @@ class CourseController extends Controller
         $course->delete();
 
         return redirect()->route('courses.index')
-            ->with('status', 'Course deleted successfully.');
+            ->with('success', 'Course deleted successfully.');
+    }
+
+    private function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'duration_weeks' => ['required', 'integer', 'min:1'],
+            'fee' => ['required', 'numeric', 'min:0'],
+            'difficulty' => ['required', Rule::in(['Easy', 'Medium', 'Hard'])],
+            'is_active' => ['boolean'],
+        ];
     }
 }

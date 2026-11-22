@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', 'Courses')
-
-@section('content')
+<x-layouts.app title="Courses">
     <div class="actions" style="justify-content: space-between; margin-bottom: 18px">
         <h1>Courses</h1>
         <a class="button" href="{{ route('courses.create') }}">Add course</a>
@@ -35,11 +31,7 @@
                         <div class="actions">
                             <a href="{{ route('courses.show', $course) }}">View</a>
                             <a href="{{ route('courses.edit', $course) }}">Edit</a>
-                            <form method="POST" action="{{ route('courses.destroy', $course) }}" onsubmit="return confirm('Delete this course?')">
-                                @csrf
-                                @method('DELETE')
-                                <button class="danger" type="submit">Delete</button>
-                            </form>
+                            <x-delete-form :action="route('courses.destroy', $course)" />
                         </div>
                     </td>
                 </tr>
@@ -48,4 +40,4 @@
             @endforelse
         </tbody>
     </table>
-@endsection
+</x-layouts.app>

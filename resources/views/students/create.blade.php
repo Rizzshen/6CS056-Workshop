@@ -1,10 +1,13 @@
-@extends('layouts.app')
-
-@section('title', 'Add student')
-
-@section('content')
+<x-layouts.app title="Add student">
     <h1>Add student</h1>
     <div class="card" style="padding: 22px">
-        @include('students._form', ['action' => route('students.store')])
+        <form method="POST" action="{{ route('students.store') }}">
+            @csrf
+            <x-students.form :student="new \App\Models\Student()" />
+            <div class="form-actions">
+                <button type="submit">Create student</button>
+                <a class="button secondary" href="{{ route('students.index') }}">Cancel</a>
+            </div>
+        </form>
     </div>
-@endsection
+</x-layouts.app>

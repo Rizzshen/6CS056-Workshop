@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class StudentController extends Controller
@@ -23,18 +24,12 @@ class StudentController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:students,email'],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'address' => ['nullable', 'string', 'max:2000'],
-            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
-        ]);
+        $validated = $request->validate($this->rules());
 
         Student::create($validated);
 
         return redirect()->route('students.index')
-            ->with('status', 'Student created successfully.');
+            ->with('success', 'Student created successfully.');
     }
 
     public function show(Student $student): View
@@ -53,18 +48,12 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:students,email,'.$student->id],
-            'phone' => ['nullable', 'string', 'max:30'],
-            'address' => ['nullable', 'string', 'max:2000'],
-            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
-        ]);
+        $validated = $request->validate($this->rules($student));
 
         $student->update($validated);
 
-        return redirect()->route('students.index')
-            ->with('status', 'Student updated successfully.');
+        return redirect()->route('students.show', $student)
+            ->with('success', 'Student updated successfully.');
     }
 
     public function destroy(Student $student): RedirectResponse
@@ -72,6 +61,17 @@ class StudentController extends Controller
         $student->delete();
 
         return redirect()->route('students.index')
-            ->with('status', 'Student deleted successfully.');
+            ->with('success', 'Student deleted successfully.');
+    }
+
+    private function rules(?Student $student = null): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('students')->ignore($student?->id)],
+            'phone' => ['required', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'date_of_birth' => ['nullable', 'date', 'before_or_equal:today'],
+        ];
     }
 }

@@ -1,8 +1,4 @@
-@extends('layouts.app')
-
-@section('title', $course->name)
-
-@section('content')
+<x-layouts.app :title="$course->name">
     <h1>Course details</h1>
     <div class="card" style="padding: 22px">
         <p><strong>Name:</strong> {{ $course->name }}</p>
@@ -20,4 +16,4 @@
             <a class="button secondary" href="{{ route('courses.index') }}">Back to courses</a>
         </div>
     </div>
-@endsection
+</x-layouts.app>

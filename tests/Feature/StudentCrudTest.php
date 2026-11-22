@@ -67,7 +67,7 @@ class StudentCrudTest extends TestCase
             'phone' => '+1 555 0102',
             'address' => '84 Compiler Court',
             'date_of_birth' => '1906-12-10',
-        ])->assertRedirect(route('students.index'));
+        ])->assertRedirect(route('students.show', $student));
 
         $this->assertDatabaseHas('students', [
             'id' => $student->id,
@@ -105,6 +105,7 @@ class StudentCrudTest extends TestCase
             ->post(route('students.store'), [
                 'name' => 'Future Student',
                 'email' => 'future@example.com',
+                'phone' => '+1 555 0103',
                 'date_of_birth' => now()->addDay()->toDateString(),
             ])
             ->assertSessionHasErrors('date_of_birth');
