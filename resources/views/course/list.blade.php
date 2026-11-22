@@ -20,7 +20,7 @@
                 <tr>
                     <td>{{ $course->name }}</td>
                     <td>{{ $course->duration_weeks }} weeks</td>
-                    <td>{{ number_format((float) $course->fee, 2) }}</td>
+                    <td>{{ number_format($course->fee, 2) }}</td>
                     <td><span class="badge badge-{{ strtolower($course->difficulty->value) }}">{{ $course->difficulty->value }}</span></td>
                     <td>
                         <span class="badge {{ $course->is_active ? 'badge-active' : 'badge-inactive' }}">

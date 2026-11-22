@@ -12,14 +12,14 @@ class CourseController extends Controller
 {
     public function index(): View
     {
-        return view('courses.index', [
+        return view('course.list', [
             'courses' => Course::query()->orderBy('name')->get(),
         ]);
     }
 
     public function create(): View
     {
-        return view('courses.create');
+        return view('course.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -34,14 +34,14 @@ class CourseController extends Controller
 
     public function show(Course $course): View
     {
-        return view('courses.show', [
+        return view('course.detail', [
             'course' => $course,
         ]);
     }
 
     public function edit(Course $course): View
     {
-        return view('courses.edit', [
+        return view('course.edit', [
             'course' => $course,
         ]);
     }

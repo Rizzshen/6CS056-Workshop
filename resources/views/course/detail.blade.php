@@ -4,7 +4,7 @@
         <p><strong>Name:</strong> {{ $course->name }}</p>
         <p><strong>Description:</strong> {{ $course->description ?: 'Not provided' }}</p>
         <p><strong>Duration:</strong> {{ $course->duration_weeks }} weeks</p>
-        <p><strong>Fee:</strong> {{ number_format((float) $course->fee, 2) }}</p>
+        <p><strong>Fee:</strong> {{ number_format($course->fee, 2) }}</p>
         <p><strong>Difficulty:</strong> <span class="badge badge-{{ strtolower($course->difficulty->value) }}">{{ $course->difficulty->value }}</span></p>
         <p><strong>Status:</strong>
             <span class="badge {{ $course->is_active ? 'badge-active' : 'badge-inactive' }}">

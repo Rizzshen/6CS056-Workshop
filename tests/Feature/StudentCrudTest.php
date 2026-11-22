@@ -22,19 +22,35 @@ class StudentCrudTest extends TestCase
 
         $this->get(route('students.index'))
             ->assertOk()
+            ->assertSee('class="active"', false)
+            ->assertSee('Training Institute')
             ->assertSee('Ada Lovelace')
             ->assertSee('ada@example.com')
             ->assertSee('+1 555 0100')
             ->assertSee('12 Analytical Engine Way')
-            ->assertSee('1815-12-10');
+            ->assertSee('1815-12-10')
+            ->assertSee("return confirm('Delete this record?')", false);
 
         $this->get(route('students.show', $student))
             ->assertOk()
+            ->assertSee('&copy; '.date('Y').' Training Institute', false)
             ->assertSee('Ada Lovelace')
             ->assertSee('ada@example.com')
             ->assertSee('+1 555 0100')
             ->assertSee('12 Analytical Engine Way')
             ->assertSee('December 10, 1815');
+    }
+
+    public function test_empty_student_list_and_root_route_render_the_student_list(): void
+    {
+        $this->get(route('students.index'))
+            ->assertOk()
+            ->assertSee('No students yet. Add one to get started.');
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Students')
+            ->assertSee('No students yet. Add one to get started.');
     }
 
     public function test_students_can_be_created_updated_and_deleted(): void
@@ -51,7 +67,8 @@ class StudentCrudTest extends TestCase
             'phone' => '+1 555 0101',
             'address' => '42 Navy Lane',
             'date_of_birth' => '1906-12-09',
-        ])->assertRedirect(route('students.index'));
+        ])->assertRedirect(route('students.index'))
+            ->assertSessionHas('success', 'Student created successfully.');
 
         $student = Student::query()->where('email', 'grace@example.com')->firstOrFail();
 
@@ -95,8 +112,45 @@ class StudentCrudTest extends TestCase
             ->post(route('students.store'), [
                 'name' => 'Second Student',
                 'email' => 'same@example.com',
+                'phone' => '+1 555 0102',
             ])
             ->assertSessionHasErrors('email');
+    }
+
+    public function test_student_can_keep_the_same_email_when_updated(): void
+    {
+        $student = Student::create([
+            'name' => 'Grace Hopper',
+            'email' => 'grace@example.com',
+            'phone' => '+1 555 0101',
+        ]);
+
+        $this->put(route('students.update', $student), [
+            'name' => 'Grace Brewster Hopper',
+            'email' => 'grace@example.com',
+            'phone' => '+1 555 0102',
+        ])->assertRedirect(route('students.show', $student));
+
+        $this->assertDatabaseHas('students', [
+            'id' => $student->id,
+            'name' => 'Grace Brewster Hopper',
+            'email' => 'grace@example.com',
+        ]);
+    }
+
+    public function test_student_validation_returns_old_input_and_missing_students_are_not_found(): void
+    {
+        $this->followingRedirects()->from(route('students.create'))
+            ->post(route('students.store'), [
+                'name' => 'Retained Name',
+                'email' => 'not-an-email',
+                'phone' => '',
+            ])
+            ->assertOk()
+            ->assertSee('value="Retained Name"', false)
+            ->assertSee('class="error"', false);
+
+        $this->get('/students/9999')->assertNotFound();
     }
 
     public function test_date_of_birth_cannot_be_in_the_future(): void

@@ -12,14 +12,14 @@ class StudentController extends Controller
 {
     public function index(): View
     {
-        return view('students.index', [
+        return view('student.list', [
             'students' => Student::query()->orderBy('name')->get(),
         ]);
     }
 
     public function create(): View
     {
-        return view('students.create');
+        return view('student.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -34,14 +34,14 @@ class StudentController extends Controller
 
     public function show(Student $student): View
     {
-        return view('students.show', [
+        return view('student.detail', [
             'student' => $student,
         ]);
     }
 
     public function edit(Student $student): View
     {
-        return view('students.edit', [
+        return view('student.edit', [
             'student' => $student,
         ]);
     }

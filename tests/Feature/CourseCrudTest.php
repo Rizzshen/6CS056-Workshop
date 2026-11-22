@@ -24,6 +24,8 @@ class CourseCrudTest extends TestCase
 
         $this->get(route('courses.index'))
             ->assertOk()
+            ->assertSee('class="active"', false)
+            ->assertSee('&copy; '.date('Y').' Training Institute', false)
             ->assertSee('Laravel Fundamentals')
             ->assertSee('499.99')
             ->assertSee('Medium')
@@ -37,6 +39,13 @@ class CourseCrudTest extends TestCase
             ->assertSee('Active');
     }
 
+    public function test_empty_course_list_is_rendered(): void
+    {
+        $this->get(route('courses.index'))
+            ->assertOk()
+            ->assertSee('No courses yet. Add one to get started.');
+    }
+
     public function test_courses_can_be_created_updated_and_deleted(): void
     {
         $this->get(route('courses.create'))
@@ -48,14 +57,16 @@ class CourseCrudTest extends TestCase
             ->assertSee('name="difficulty"', false)
             ->assertSee('name="is_active"', false);
 
-        $this->post(route('courses.store'), [
+        $this->followingRedirects()->post(route('courses.store'), [
             'name' => 'PHP Basics',
             'description' => 'Learn the fundamentals.',
             'duration_weeks' => 4,
             'fee' => '125.50',
             'difficulty' => 'Easy',
             'is_active' => '1',
-        ])->assertRedirect(route('courses.index'));
+        ])->assertOk()
+            ->assertSee('Course created successfully.')
+            ->assertSee("return confirm('Delete this record?')", false);
 
         $course = Course::query()->where('name', 'PHP Basics')->firstOrFail();
         $this->assertModelExists($course);
@@ -104,5 +115,21 @@ class CourseCrudTest extends TestCase
             ->assertSessionHasErrors('difficulty');
 
         $this->assertDatabaseMissing('courses', ['name' => 'Invalid Difficulty Course']);
+    }
+
+    public function test_course_validation_preserves_old_input_and_missing_courses_are_not_found(): void
+    {
+        $this->followingRedirects()->from(route('courses.create'))
+            ->post(route('courses.store'), [
+                'name' => 'Course Draft',
+                'duration_weeks' => 0,
+                'fee' => -1,
+                'difficulty' => 'Impossible',
+            ])
+            ->assertOk()
+            ->assertSee('value="Course Draft"', false)
+            ->assertSee('class="error"', false);
+
+        $this->get('/courses/9999')->assertNotFound();
     }
 }
